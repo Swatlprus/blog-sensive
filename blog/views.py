@@ -55,7 +55,7 @@ def post_detail(request, slug):
         post = Post.objects.annotate(Count('likes')) \
                         .fetch_with_tags() \
                         .prefetch_related(comments_prefetch) \
-                        .prefetch_related('author') \
+                        .select_related('author') \
                         .get(slug=slug)
     except post.DoesNotExist:
         raise Http404("Post does not exist")
@@ -103,7 +103,7 @@ def tag_filter(request, tag_title):
 
     most_popular_posts = Post.objects.fetch_most_popular_posts()
 
-    related_posts = tag.posts.prefetch_related('author')[:20] \
+    related_posts = tag.posts.select_related('author')[:20] \
                              .fetch_with_tags() \
                              .fetch_with_comments_count()
 
