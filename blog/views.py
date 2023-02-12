@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from blog.models import Comment, Post, Tag
 from django.db.models import Count, Prefetch
+from django.http import Http404
 
 
 def serialize_tag(tag):
@@ -50,11 +51,15 @@ def post_detail(request, slug):
         'comments',
         Comment.objects.prefetch_related('author')
     )
-    post = Post.objects.annotate(Count('likes')) \
-                       .fetch_with_tags() \
-                       .prefetch_related(comments_prefetch) \
-                       .prefetch_related('author') \
-                       .get(slug=slug)
+    try:
+        post = Post.objects.annotate(Count('likes')) \
+                        .fetch_with_tags() \
+                        .prefetch_related(comments_prefetch) \
+                        .prefetch_related('author') \
+                        .get(slug=slug)
+    except post.DoesNotExist:
+        raise Http404("Post does not exist")
+
 
     serialized_comments = []
     for comment in post.comments.all():
