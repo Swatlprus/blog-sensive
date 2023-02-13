@@ -57,7 +57,7 @@ def post_detail(request, slug):
                         .prefetch_related(comments_prefetch) \
                         .select_related('author') \
                         .get(slug=slug)
-    except post.DoesNotExist:
+    except Post.DoesNotExist:
         raise Http404("Post does not exist")
 
 
